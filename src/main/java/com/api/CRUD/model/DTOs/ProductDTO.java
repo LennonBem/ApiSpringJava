@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProductDTO {
 
-    private UUID id;
+    private Long id;
     private String name;
     private Float price;
 

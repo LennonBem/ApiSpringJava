@@ -7,8 +7,10 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
+import javax.annotation.PreDestroy;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 @Data
@@ -24,7 +26,7 @@ public class ProductEntiti implements Serializable{
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private Long id;
 
     @Column(name = "NAME", nullable = false)
     private String name;
@@ -34,6 +36,35 @@ public class ProductEntiti implements Serializable{
 
     @Column(name = "ISDELETE")
     private boolean isDelete;
+
+
+    @Column(name = "DataInsercao")
+    private Date dataInsercao;
+
+    @Column(name = "DataAlteracao")
+    private Date dataAlteracao;
+
+    @Column(name = "DataExclusao")
+    private Date dataExclusao;
+
+    @PrePersist
+    public void prePersist(){
+        dataInsercao = new Date();
+    }
+
+    @PreUpdate
+    public void preUpdate(){
+        dataAlteracao = new Date();
+        System.out.println("excluir");
+    }
+
+    @PreRemove
+    public void preRemove(){
+        dataExclusao = new Date();
+    }
+
+
+
 
 
 }
