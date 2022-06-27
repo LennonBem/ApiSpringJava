@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 import java.util.List;
 import java.util.Optional;
 
@@ -24,13 +23,18 @@ public class ProductController {
     @Autowired
     private ProductService productService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
+
+
+
     @GetMapping()
     public ResponseEntity<Object> listarTodosProdutos(){
        try{
            List<ProductDTO> produtos = productService.listarTodosProdutos();
 
                return  ResponseEntity.status(HttpStatus.OK).body(produtos);
-
 
        }catch (Exception e){
            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error!");
@@ -42,7 +46,6 @@ public class ProductController {
         try {
             Optional product = productService.buscarPorID(id);
             if (!product.isEmpty()) {
-                ModelMapper modelMapper = new ModelMapper();
                 ProductDTO productDTO = modelMapper.map(product.get(), ProductDTO.class);
                return ResponseEntity.status(HttpStatus.OK).body(productDTO);
 
@@ -56,10 +59,13 @@ public class ProductController {
     }
 
     @PostMapping()
-    public ResponseEntity<Object> criarProduto(@RequestBody ProductDTO productDTO){
+    public ResponseEntity<Object> criarProduto(@RequestBody List<ProductDTO> productDTO){
         try{
-            ProductEntiti productEntiti = productService.criarProduto(productDTO);
-            productDTO.setId(productEntiti.getId());
+            List<ProductEntiti> productEntiti = productService.criarProduto(productDTO);
+            productDTO.clear();
+            productEntiti.forEach(e -> {
+                productDTO.add(modelMapper.map(e, ProductDTO.class));
+            });
             return  ResponseEntity.status(HttpStatus.OK).body(productDTO);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error!");

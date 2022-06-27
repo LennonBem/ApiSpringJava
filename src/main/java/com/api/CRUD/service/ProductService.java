@@ -23,12 +23,14 @@ public class ProductService {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     public List<ProductDTO> listarTodosProdutos() throws Exception{
 
             List<ProductEntiti> products = productRepository.findAll(Sort.by(Sort.Direction.DESC,"dataInsercao"));
 
             List<ProductDTO> productDTOS = new ArrayList<>();
-            ModelMapper modelMapper = new ModelMapper();
 
             products.forEach(e-> {
                 productDTOS.add(modelMapper.map(e,ProductDTO.class));
@@ -43,15 +45,19 @@ public class ProductService {
      return productEntiti;
     }
 
-    public ProductEntiti criarProduto(ProductDTO product) throws Exception {
-        ModelMapper modelMapper = new ModelMapper();
-        ProductEntiti productEntiti = modelMapper.map(product, ProductEntiti.class);
-       return productRepository.save(productEntiti);
+    public List<ProductEntiti> criarProduto(List<ProductDTO> product) throws Exception {
+        List<ProductEntiti> productEntiti = new ArrayList<>();
+        product.forEach(e-> {
+            productEntiti.add(modelMapper.map(e, ProductEntiti.class));
+
+        });
+         return productRepository.saveAll(productEntiti);
+
+
 
     }
 
     public ProductEntiti atualizarProduto(ProductDTO product) throws Exception{
-        ModelMapper modelMapper = new ModelMapper();
         ProductEntiti productEntiti = modelMapper.map(product, ProductEntiti.class);
         return productRepository.save(productEntiti);
     }
