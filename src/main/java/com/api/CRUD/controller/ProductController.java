@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,18 +28,19 @@ public class ProductController {
     private ModelMapper modelMapper;
 
 
-
-
     @GetMapping()
-    public ResponseEntity<Object> listarTodosProdutos(){
-       try{
-           List<ProductDTO> produtos = productService.listarTodosProdutos();
+    public Object listarTodosProdutos(@RequestParam(defaultValue = "0") Integer page,
+                                      @RequestParam(defaultValue = "10") Integer size
+                                      ) {
 
-               return  ResponseEntity.status(HttpStatus.OK).body(produtos);
+        try {
+            Page<ProductDTO> produtos = productService.listarTodosProdutos(page,size);
 
-       }catch (Exception e){
-           return ResponseEntity.status(HttpStatus.CONFLICT).body("Error!");
-       }
+            return ResponseEntity.status(HttpStatus.OK).body(produtos);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Error!");
+        }
     }
 
     @GetMapping("/{id}")

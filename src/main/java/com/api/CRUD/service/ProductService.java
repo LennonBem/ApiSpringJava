@@ -5,12 +5,11 @@ import com.api.CRUD.model.entities.ProductEntiti;
 import com.api.CRUD.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,17 +25,19 @@ public class ProductService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public List<ProductDTO> listarTodosProdutos() throws Exception{
+    public Page<ProductDTO> listarTodosProdutos(int page, int size) throws Exception{
 
-            List<ProductEntiti> products = productRepository.findAll(Sort.by(Sort.Direction.DESC,"dataInsercao"));
+        Pageable pageRequest = PageRequest.of(
+                page,
+                size,
+                Sort.Direction.ASC,
+                "id");
 
-            List<ProductDTO> productDTOS = new ArrayList<>();
+            Page<ProductEntiti> products = productRepository.findAll(pageRequest);
 
-            products.forEach(e-> {
-                productDTOS.add(modelMapper.map(e,ProductDTO.class));
-            });
+            Page<ProductDTO> productDTOS = products.map(c -> new ProductDTO(c.getId(),c.getName(),c.getPrice()));
 
-            return productDTOS;
+        return productDTOS;
     }
 
 
