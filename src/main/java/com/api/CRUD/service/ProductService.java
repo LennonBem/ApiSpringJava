@@ -46,6 +46,22 @@ public class ProductService {
      return productEntiti;
     }
 
+    public List<ProductDTO> filterByName(String name) throws Exception{
+        String nameLowerCase = name.toLowerCase();
+        String nameFormatConsult = String.format("%s%s%s","%", nameLowerCase, "%" );
+        System.out.println(nameFormatConsult);
+
+        List<ProductEntiti> productEntiti = productRepository.findByNameContains(nameFormatConsult);
+
+        List<ProductDTO> productDTO = new ArrayList<>();
+        productEntiti.forEach(e-> {
+            productDTO.add(modelMapper.map(e, ProductDTO.class));
+
+        });
+
+        return productDTO;
+    }
+
     public List<ProductEntiti> criarProduto(List<ProductDTO> product) throws Exception {
         List<ProductEntiti> productEntiti = new ArrayList<>();
         product.forEach(e-> {
@@ -53,8 +69,6 @@ public class ProductService {
 
         });
          return productRepository.saveAll(productEntiti);
-
-
 
     }
 

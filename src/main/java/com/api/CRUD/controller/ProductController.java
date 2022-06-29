@@ -29,8 +29,8 @@ public class ProductController {
 
 
     @GetMapping()
-    public Object listarTodosProdutos(@RequestParam(defaultValue = "0") Integer page,
-                                      @RequestParam(defaultValue = "10") Integer size
+    public Object listarTodosProdutos(@RequestParam(name = "page", defaultValue = "0") Integer page,
+                                      @RequestParam(name = "size", defaultValue = "10") Integer size
                                       ) {
 
         try {
@@ -42,6 +42,8 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error!");
         }
     }
+
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> buscarPorId(@PathVariable Long id) {
@@ -58,6 +60,16 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/filter")
+    public Object filterByName(@RequestParam(name = "name",required = false) String name ){
+        try {
+          return productService.filterByName(name);
+        }catch (Exception e){
+           return e.getMessage();
+        }
+
     }
 
     @PostMapping()
