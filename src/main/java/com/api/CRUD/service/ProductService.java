@@ -1,5 +1,7 @@
 package com.api.CRUD.service;
 
+import com.api.CRUD.model.DTOs.Category.CategoryResponse;
+import com.api.CRUD.model.DTOs.Product.ProductResponse;
 import com.api.CRUD.model.DTOs.ProductDTO;
 import com.api.CRUD.model.entities.ProductEntiti;
 import com.api.CRUD.repository.ProductRepository;
@@ -25,7 +27,7 @@ public class ProductService {
     @Autowired
     private ModelMapper modelMapper;
 
-    public Page<ProductDTO> listarTodosProdutos(int page, int size) throws Exception{
+    public Page<ProductResponse> listarTodosProdutos(int page, int size) throws Exception{
 
         Pageable pageRequest = PageRequest.of(
                 page,
@@ -35,9 +37,16 @@ public class ProductService {
 
             Page<ProductEntiti> products = productRepository.findAll(pageRequest);
 
-            Page<ProductDTO> productDTOS = products.map(c -> new ProductDTO(c.getId(),c.getName(),c.getPrice()));
 
-        return productDTOS;
+
+            Page<ProductResponse> productResponse = products.map(c -> {
+               var categoryResponse =  modelMapper.map(c.getCategory(), CategoryResponse.class);
+               return new ProductResponse(c.getId(), c.getName(), c.getPrice(), categoryResponse);
+            }
+            );
+
+
+        return productResponse;
     }
 
 
@@ -62,13 +71,13 @@ public class ProductService {
         return productDTO;
     }
 
-    public List<ProductEntiti> criarProduto(List<ProductDTO> product) throws Exception {
-        List<ProductEntiti> productEntiti = new ArrayList<>();
-        product.forEach(e-> {
-            productEntiti.add(modelMapper.map(e, ProductEntiti.class));
+    public ProductEntiti criarProduto(ProductDTO product) throws Exception {
 
-        });
-         return productRepository.saveAll(productEntiti);
+
+       var productEntiti =  modelMapper.map(product, ProductEntiti.class);
+
+
+         return productRepository.save(productEntiti);
 
     }
 

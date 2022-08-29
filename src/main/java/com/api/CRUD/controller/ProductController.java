@@ -1,5 +1,6 @@
 package com.api.CRUD.controller;
 
+import com.api.CRUD.model.DTOs.Product.ProductResponse;
 import com.api.CRUD.model.DTOs.ProductDTO;
 import com.api.CRUD.model.entities.ProductEntiti;
 import com.api.CRUD.service.ProductService;
@@ -9,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,13 +22,13 @@ import java.util.Optional;
 @RequestMapping("/products")
 public class ProductController {
 
-
-
     @Autowired
     private ProductService productService;
 
     @Autowired
     private ModelMapper modelMapper;
+
+    private final ObjectMapper mapper = new ObjectMapper();
 
 
     @GetMapping()
@@ -34,7 +37,7 @@ public class ProductController {
                                       ) {
 
         try {
-            Page<ProductDTO> produtos = productService.listarTodosProdutos(page,size);
+            Page<ProductResponse> produtos = productService.listarTodosProdutos(page,size);
 
             return ResponseEntity.status(HttpStatus.OK).body(produtos);
 
@@ -73,13 +76,17 @@ public class ProductController {
     }
 
     @PostMapping()
-    public ResponseEntity<Object> criarProduto(@RequestBody List<ProductDTO> productDTO){
+    public ResponseEntity<Object> criarProduto(@RequestParam String product, @RequestParam("file") MultipartFile file){
         try{
-            List<ProductEntiti> productEntiti = productService.criarProduto(productDTO);
-            productDTO.clear();
-            productEntiti.forEach(e -> {
-                productDTO.add(modelMapper.map(e, ProductDTO.class));
-            });
+               ProductDTO productDTO = mapper.readValue(product, ProductDTO.class);
+
+       productDTO.setFoto(file.getInputStream().readAllBytes());
+
+            ProductEntiti productEntiti = productService.criarProduto(productDTO);
+
+
+            productDTO =   modelMapper.map(productEntiti, ProductDTO.class);
+
             return  ResponseEntity.status(HttpStatus.OK).body(productDTO);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body("Error!");

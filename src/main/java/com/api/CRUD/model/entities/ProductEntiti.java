@@ -7,11 +7,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
-import javax.annotation.PreDestroy;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.UUID;
 
 @Data
 @Entity
@@ -33,6 +31,10 @@ public class ProductEntiti implements Serializable{
 
     @Column(name = "PRICE", nullable = false)
     private Float price;
+
+    @ManyToOne
+    @JoinColumn(name = "CategoryId", nullable = false)
+    private CategoryEntiti category;
 
     @Column(name = "ISDELETE")
     private boolean isDelete;
@@ -62,6 +64,9 @@ public class ProductEntiti implements Serializable{
     public void preRemove(){
         dataExclusao = new Date();
     }
+
+    @Lob
+    private byte[] foto;
 
 
 
